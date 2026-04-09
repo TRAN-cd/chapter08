@@ -1,8 +1,9 @@
 'use client';
 
+import Image from "next/image";
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
-import type {Post} from "../../_type/Post.types";
+import type {MicroCmsPost} from "../../_type/MicroCmsPost";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -15,15 +16,23 @@ const formatDate = (dateString: string) => {
 };
 
 export default function Post(){
-  const [post, setPosts] = useState<Post | null>(null);
+  const [post, setPosts] = useState<MicroCmsPost | null>(null);
 
   const { id } = useParams();
 
   useEffect(() => {
     const fetcher = async () => {
-      const response = await fetch(`https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`);
+      const response = await fetch(
+        `https://w0wrfq7tkg.microcms.io/api/v1/posts/${id}`,
+      {
+        headers: {
+          'X-MICROCMS-API-KEY': process.env
+            .NEXT_PUBLIC_MICROCMS_API_KEY as string,
+        },
+      },
+      );
       const data = await response.json();
-      setPosts(data.post);
+      setPosts(data);
     }
   
     fetcher();
@@ -44,14 +53,14 @@ export default function Post(){
       <div className="p-[10px] max-w-[80%] w-full mx-auto">
         <div className="flex flex-col gap-[10px]">
           <div className="w-full">
-            <img src={post.thumbnailUrl} alt="w-full align-bottom" />
+            <Image src={post.thumbnail.url} width={800} height={400} alt="w-full align-bottom" />
           </div>
           <div className="flex flex-col gap-[10px] w-full">
             <div className="flex items-center gap-[10px]">
               <p className="">{formatDate(post.createdAt)}</p>
               <ul className="flex gap-[10px]">
                 {post.categories.map((cat, i) => (
-                  <li key={i} className='bg-gray-300 pt-[5px] pb-[5px] pr-[10px] pl-[10px] rounded-[50px]'>{cat}</li>
+                  <li key={i} className='bg-gray-300 pt-[5px] pb-[5px] pr-[10px] pl-[10px] rounded-[50px]'>{cat.name}</li>
                 ))}
               </ul>
             </div>
