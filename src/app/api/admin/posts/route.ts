@@ -1,23 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextResponse } from "next/server";
-
-//// 記事一覧取得
-export type PostsIndexResponse = {
-  posts: {
-    id: number
-    title: string
-    content: string
-    thumbnailUrl: string
-    createdAt: Date
-    updatedAt: Date
-    postCategories: {
-      category: {
-        id: number
-        name: string
-      }
-    }[]
-  }[]
-}
+import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
 
 export const GET = async () => {
   try {
@@ -36,7 +19,19 @@ export const GET = async () => {
       },
     })
 
-    return NextResponse.json<PostsIndexResponse>({ posts }, { status: 200 })
+    const postsResponse = posts.map((post) => ({
+      ...post,
+      createdAt: post.createdAt.toISOString(), // Dateを文字列に変換
+      updatedAt: post.updatedAt.toISOString(), // Dateを文字列に変換
+      postCategories: post.postCategories.map((pc) => ({
+        category: {
+          id: pc.category.id,
+          name: pc.category.name,
+        },
+      })),
+    }));
+
+    return NextResponse.json<PostsIndexResponse>({ posts: postsResponse }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message}, { status: 400 }) 

@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
-import type {MicroCmsPost} from "../../_type/MicroCmsPost";
+import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 
-const formatDate = (dateString: string) => {
+
+const formatDate = (dateString: string | Date) => {
+  console.log("formatDateに渡された値:", dateString, "型:", typeof dateString);
   const date = new Date(dateString);
   
   return new Intl.DateTimeFormat('ja-JP', {
@@ -16,23 +18,16 @@ const formatDate = (dateString: string) => {
 };
 
 export default function Post(){
-  const [post, setPosts] = useState<MicroCmsPost | null>(null);
+  const [post, setPosts] = useState<PostShowResponse["post"] | null>(null);
 
   const { id } = useParams();
 
   useEffect(() => {
     const fetcher = async () => {
-      const response = await fetch(
-        `https://w0wrfq7tkg.microcms.io/api/v1/posts/${id}`,
-      {
-        headers: {
-          'X-MICROCMS-API-KEY': process.env
-            .NEXT_PUBLIC_MICROCMS_API_KEY as string,
-        },
-      },
-      );
+      const response = await fetch(`/api/posts/${id}`);
       const data = await response.json();
-      setPosts(data);
+      setPosts(data.post);
+      console.log(data.post);
     }
   
     fetcher();
@@ -41,7 +36,7 @@ export default function Post(){
   if (!post) {
     return (
       <>
-        <div className="p-[10px] w-full text-center">
+        <div className="p-2.5 w-full text-center">
           <p>記事を読み込み中です...</p>
         </div>
       </>
@@ -50,17 +45,17 @@ export default function Post(){
 
   return (
     <>
-      <div className="p-[10px] max-w-[80%] w-full mx-auto">
-        <div className="flex flex-col gap-[10px]">
+      <div className="p-2.5 max-w-[80%] w-full mx-auto">
+        <div className="flex flex-col gap-2.5">
           <div className="w-full">
-            <Image src={post.thumbnail.url} width={800} height={400} alt="w-full align-bottom" />
+            <Image src={post.thumbnailUrl} width={800} height={400} alt="w-full align-bottom" />
           </div>
-          <div className="flex flex-col gap-[10px] w-full">
-            <div className="flex items-center gap-[10px]">
+          <div className="flex flex-col gap-2.5 w-full">
+            <div className="flex items-center gap-2.5">
               <p className="">{formatDate(post.createdAt)}</p>
-              <ul className="flex gap-[10px]">
-                {post.categories.map((cat, i) => (
-                  <li key={i} className='bg-gray-300 pt-[5px] pb-[5px] pr-[10px] pl-[10px] rounded-[50px]'>{cat.name}</li>
+              <ul className="flex gap-2.5">
+                {post.postCategories.map((cat, i) => (
+                  <li key={i} className='bg-gray-300 pt-1.25 pb-1.25 pr-2.5 pl-2.5 rounded-[50px]'>{cat.category.name}</li>
                 ))}
               </ul>
             </div>

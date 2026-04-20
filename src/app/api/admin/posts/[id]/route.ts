@@ -1,25 +1,8 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import type { PostShowResponse } from "@/app/_type/PostShowResponse"
 
 //// 記事詳細取得
-export type Category = {
-  id: number
-  name: string
-}
-
-export type PostShowResponse = {
-  post: {
-    id: number
-    title: string
-    content: string
-    thumbnailUrl: string
-    createdAt: Date
-    updatedAt: Date
-    postCategories: {
-      category: Category
-    }[]
-  }
-}
 
 export const GET = async (
   _request: NextRequest,
@@ -50,7 +33,17 @@ export const GET = async (
       )
     }
 
-    return NextResponse.json<PostShowResponse>({ post }, { status: 200 })
+    // Prismaが日付をDate型で返すので、stringに変換する
+    const postResponse = {
+      ...post,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      postCategories: post.postCategories.map(pc => ({
+        category: pc.category
+      }))
+    }
+
+    return NextResponse.json<PostShowResponse>({ post: postResponse }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 }) 
