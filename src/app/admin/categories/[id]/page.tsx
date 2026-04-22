@@ -2,28 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
 
 
-export default function CategoryEdit(
-  { params }: { params: Promise<{ id: string }> }
-) {
+export default function CategoryEdit() {
   const router = useRouter();
-  const [id, setId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     name: "",
   });
 
-  useEffect(() => {
-    const getParams = async () => {
-      const p = await params;
-      setId(p.id);
-    };
-
-    getParams();
-  }, [params]);
+  const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     if (!id) return;
