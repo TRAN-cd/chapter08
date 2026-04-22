@@ -16,6 +16,8 @@ export default function CreateNewPost() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({
@@ -57,6 +59,7 @@ export default function CreateNewPost() {
     };
 
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/`, {
         method: 'POST',
         headers: {
@@ -74,6 +77,8 @@ export default function CreateNewPost() {
       }
     } catch (error) {
       console.log('新規作成エラー', error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -100,17 +105,17 @@ export default function CreateNewPost() {
           <form className="p-2.5 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label htmlFor="title">タイトル</label>
-              <input id="title" name="title" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.title}/>
+              <input id="title" name="title" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.title} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="content">内容</label>
-              <input id="content" name="content" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.content}/>
+              <input id="content" name="content" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.content} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="thumbnailUrl">サムネイルURL</label>
-              <input id="thumbnailUrl" name="thumbnailUrl" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.thumbnailUrl}/>
+              <input id="thumbnailUrl" name="thumbnailUrl" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.thumbnailUrl} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -124,7 +129,8 @@ export default function CreateNewPost() {
                     value={category.name}
                     className="mr-2"
                     checked={selectedCategoryIds.includes(category.id)}
-                    onChange={() => handleToggleCategory(category.id)} />
+                    onChange={() => handleToggleCategory(category.id)} 
+                    disabled={isSubmitting}/>
                   <label htmlFor={`cat-${category.id}`}>{category.name}</label>
                 </div>
               ))}
@@ -132,7 +138,7 @@ export default function CreateNewPost() {
             <div className="flex gap-4">
               <button 
                 type="button"
-                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" onClick={handleCreate}>作成</button>
+                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" onClick={handleCreate} disabled={isSubmitting}>作成</button>
             </div>
           </form>
         </div>

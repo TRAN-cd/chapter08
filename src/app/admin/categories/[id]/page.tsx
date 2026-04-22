@@ -12,6 +12,7 @@ export default function CategoryEdit() {
   const [form, setForm] = useState({
     name: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { id } = useParams<{ id: string }>();
 
@@ -43,6 +44,7 @@ export default function CategoryEdit() {
   // 更新処理関数
   const handleUpdate = async () => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: {
@@ -58,6 +60,8 @@ export default function CategoryEdit() {
       }
     } catch (error) {
       console.log('更新エラー', error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -65,6 +69,7 @@ export default function CategoryEdit() {
   const handleDelete = async () => {
     if (!confirm('本当に削除しますか？')) return;
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/${id}`, {
         method: 'DELETE',
       });
@@ -78,6 +83,8 @@ export default function CategoryEdit() {
 
     } catch (error) {
       console.error('削除エラー:', error)
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -108,7 +115,7 @@ export default function CategoryEdit() {
           <form className="mb-4">
             <div className="flex flex-col gap-2">
               <label htmlFor="name">カテゴリー</label>
-              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name} />
+              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name} disabled={isSubmitting} />
             </div>
           </form>
 
@@ -116,11 +123,11 @@ export default function CategoryEdit() {
             <button
               type="button"
               onClick={handleUpdate}
-              className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" >更新</button>
+              className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" disabled={isSubmitting}>更新</button>
             <button
               type="button"
               onClick={handleDelete}
-              className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer">削除</button>
+              className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer" disabled={isSubmitting}>削除</button>
           </div>
         </div>
       </div>

@@ -7,6 +7,8 @@ import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import type { Category } from "@/app/_type/Category";
 
 export default function PostEdit() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // ① idを取得する
   const { id } = useParams<{ id: string}>();
 
@@ -64,6 +66,7 @@ export default function PostEdit() {
     };
 
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
         headers: {
@@ -79,6 +82,8 @@ export default function PostEdit() {
       }
     } catch (error) {
       console.log('更新エラー', error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -87,6 +92,7 @@ export default function PostEdit() {
   const handleDelete = async () => {
     if (!confirm('本当に削除しますか？')) return;
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'DELETE',
       });
@@ -100,6 +106,8 @@ export default function PostEdit() {
 
     } catch (error) {
       console.error('削除エラー:', error)
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -164,17 +172,17 @@ export default function PostEdit() {
           <form className="p-2.5 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label htmlFor="title">タイトル</label>
-              <input id="title" name="title" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.title} />
+              <input id="title" name="title" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.title} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="content">内容</label>
-              <input id="content" name="content" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.content} />
+              <input id="content" name="content" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.content} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="thumbnailUrl">サムネイルURL</label>
-              <input id="thumbnailUrl" name="thumbnailUrl" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.thumbnailUrl} />
+              <input id="thumbnailUrl" name="thumbnailUrl" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.thumbnailUrl} disabled={isSubmitting}/>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -188,7 +196,8 @@ export default function PostEdit() {
                     value={category.name}
                     className="mr-2"
                     checked={selectedCategoryIds.includes(category.id)}
-                    onChange={() => handleToggleCategory(category.id)} />
+                    onChange={() => handleToggleCategory(category.id)} 
+                    disabled={isSubmitting}/>
                   <label htmlFor={`cat-${category.id}`}>{category.name}</label>
                 </div>
               ))}
@@ -198,11 +207,13 @@ export default function PostEdit() {
               <button
                 type="button"
                 onClick={handleUpdate}
-                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" >更新</button>
+                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer"
+                disabled={isSubmitting} >更新</button>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer">削除</button>
+                className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer"
+                disabled={isSubmitting}>削除</button>
             </div>
           </form>
         </div>

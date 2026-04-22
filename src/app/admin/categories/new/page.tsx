@@ -9,6 +9,7 @@ export default function CreateNewCategory(){
   const [form, setForm] = useState({
     name: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({
@@ -19,6 +20,7 @@ export default function CreateNewCategory(){
 
   const handleCreate = async () => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/`, {
         method: 'POST',
         headers: {
@@ -35,6 +37,8 @@ export default function CreateNewCategory(){
       }
     } catch (error) {
       console.log('新規作成エラー', error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -56,13 +60,13 @@ export default function CreateNewCategory(){
           <form className="p-2.5 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label htmlFor="category">カテゴリー</label>
-              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name}/>
+              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name} disabled={isSubmitting}/>
             </div>
 
             <div className="flex gap-4">
               <button 
                 type="button"
-                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" onClick={handleCreate}>作成</button>
+                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" onClick={handleCreate} disabled={isSubmitting}>作成</button>
             </div>
           </form>
         </div>
