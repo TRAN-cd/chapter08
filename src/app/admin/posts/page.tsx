@@ -21,14 +21,15 @@ export default function AdminPostComponent(){
 
   useEffect(() => {
     const fetcher = async () => {
-      setLoading(true)
-
-      const response = await fetch('/api/admin/posts/');
-      const { posts } = await response.json();
-      setPosts(posts);
-      console.log(posts);
-
-      setLoading(false)
+      try {
+        setLoading(true)
+        const response = await fetch('/api/admin/posts/');
+        const { posts } = await response.json();
+        setPosts(posts);
+        setLoading(false)
+      } catch (error) {
+        console.error("データ取得に失敗しました", error);
+      }
     }
 
     fetcher()

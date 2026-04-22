@@ -22,10 +22,13 @@ export default function Post(){
 
   useEffect(() => {
     const fetcher = async () => {
-      const response = await fetch(`/api/posts/${id}`);
-      const data = await response.json();
-      setPosts(data.post);
-      console.log(data.post);
+      try {
+        const response = await fetch(`/api/posts/${id}`);
+        const data = await response.json();
+        setPosts(data.post);
+      } catch (error) {
+        console.error("データ取得に失敗しました", error);
+      }
     }
   
     fetcher();

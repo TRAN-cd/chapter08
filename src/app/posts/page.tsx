@@ -21,11 +21,15 @@ export default function PostComponent(){
 
   useEffect(() => {
     const fetcher = async () => {
-      setLoading(true);
-      const response = await fetch('/api/posts');
-      const data = await response.json();
-      setPosts(data.posts);
-      setLoading(false)
+      try {
+        setLoading(true);
+        const response = await fetch('/api/posts');
+        const data = await response.json();
+        setPosts(data.posts);
+        setLoading(false)
+      } catch (error) {
+        console.error("データ取得に失敗しました", error)
+      }
     }
   
     fetcher();

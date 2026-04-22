@@ -7,6 +7,7 @@ import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import type { Category } from "@/app/_type/Category";
 
 export default function PostEdit() {
+  // ① idを取得する
   const { id } = useParams<{ id: string}>();
 
   // ② フォームの初期値を定義する
