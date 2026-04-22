@@ -3,15 +3,10 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-type Category = {
-  id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import type { Category } from "@/app/_type/Category";
 
 export default function CreateNewPost() {
+  const router = useRouter();
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -19,6 +14,7 @@ export default function CreateNewPost() {
     categories:[] as { id: number }[]
   });
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -28,7 +24,6 @@ export default function CreateNewPost() {
     })
   }
 
-  const [allCategories, setAllCategories] = useState<Category[]>([]);
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -55,12 +50,6 @@ export default function CreateNewPost() {
     )
   }
 
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, [])
-
-  const router = useRouter();
   const handleCreate = async () => {
     const dataToSubmit = {
       ...form,
@@ -73,6 +62,7 @@ export default function CreateNewPost() {
         headers: {
           'Content-Type': 'application/json',
         },
+        // ここでCreatePostRequestBody型のデータを送信
         body: JSON.stringify(dataToSubmit),
       });
 
@@ -86,6 +76,11 @@ export default function CreateNewPost() {
       console.log('新規作成エラー', error);
     }
   }
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, [])
 
   return (
     <>

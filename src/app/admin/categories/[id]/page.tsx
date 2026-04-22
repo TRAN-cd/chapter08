@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { CategoryResponse } from "@/app/_type/CategoryResponse";
+import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
+
 
 export default function CategoryEdit(
   { params }: { params: Promise<{ id: string }> }
@@ -31,13 +32,13 @@ export default function CategoryEdit(
       try {
         setLoading(true);
         const response = await fetch(`/api/admin/categories/${id}`);
-        const data: CategoryResponse = await response.json();
+        const data: CategoryShowResponse = await response.json();
 
         console.log("取得したデータ:", data)
         setForm({
           name: data.category.name
         })
-        console.log(data);
+
         setLoading(false);
       } catch (error) {
         console.error("データ取得に失敗しました", error);
@@ -57,7 +58,7 @@ export default function CategoryEdit(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: form.name }),
+        body: JSON.stringify(form),
       });
 
       if (response.ok) {
@@ -70,7 +71,7 @@ export default function CategoryEdit(
     }
   }
 
-  // ⑥ 削除処理関数
+  // 削除処理関数
   const handleDelete = async () => {
     if (!confirm('本当に削除しますか？')) return;
     try {

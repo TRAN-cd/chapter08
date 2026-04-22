@@ -4,20 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
-
-type Category = {
-  id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import type { Category } from "@/app/_type/Category";
 
 export default function PostEdit(
   { params }: { params: Promise<{ id: string }> }
 ) {
   // ① paramsからidを取得できるようにする
   const [id, setId] = useState<string>("");
-
   useEffect(() => {
     const getParams = async () => {
       const p = await params;

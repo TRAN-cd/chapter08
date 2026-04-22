@@ -19,19 +19,8 @@ export const GET = async () => {
       },
     })
 
-    const postsResponse = posts.map((post) => ({
-      ...post,
-      createdAt: post.createdAt.toISOString(), // Dateを文字列に変換
-      updatedAt: post.updatedAt.toISOString(), // Dateを文字列に変換
-      postCategories: post.postCategories.map((pc) => ({
-        category: {
-          id: pc.category.id,
-          name: pc.category.name,
-        },
-      })),
-    }));
-
-    return NextResponse.json<PostsIndexResponse>({ posts: postsResponse }, { status: 200 })
+    // レスポンスボディ
+    return NextResponse.json<PostsIndexResponse>({ posts }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message}, { status: 400 }) 

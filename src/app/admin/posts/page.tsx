@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { Post } from "../../_type/Post.types";
+import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   
   return new Intl.DateTimeFormat('ja-JP', {
@@ -15,9 +15,8 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-
 export default function AdminPostComponent(){
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -60,7 +59,7 @@ export default function AdminPostComponent(){
           </div>
           {posts.map((elem, index) => (
             <Link href={`/admin/posts/${elem.id}`} key={elem.id} className="block border-b border-[#9e9e9e]">
-              <div className="flex flex-col gap-2.5 pt-2.5 pb-2.5 sm:flex-row" id={elem.id}>
+              <div className="flex flex-col gap-2.5 pt-2.5 pb-2.5 sm:flex-row">
                 <div className="max-w-full w-full sm:max-w-[40%]">
                   <Image src="https://placehold.jp/800x400.png" alt={elem.thumbnailUrl} width={800} height={400} className="w-full align-bottom"/>
                   {/* <Image src={elem.thumbnailUrl} alt={elem.thumbnailUrl} width={800} height={400} className="w-full align-bottom"/> */}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse";
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   
   return new Intl.DateTimeFormat('ja-JP', {
@@ -14,7 +14,6 @@ const formatDate = (dateString: string) => {
     day: 'numeric',
   }).format(date);
 };
-
 
 export default function PostComponent(){
   const [posts, setPosts] = useState<PostsIndexResponse['posts']>([])  //

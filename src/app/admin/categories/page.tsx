@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Category } from "@/app/_type/Category";
+import type { CategoriesIndexResponse } from "@/app/_type/CategoriesIndexResponse";
 
 export default function AdminCategoriesComponent() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoriesIndexResponse['categories']>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

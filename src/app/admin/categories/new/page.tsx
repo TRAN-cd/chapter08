@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function CreateNewCategory(){
   const router = useRouter();
   const [form, setForm] = useState({
-    category: ""
+    name: ""
   });
 
   const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -24,7 +24,7 @@ export default function CreateNewCategory(){
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: form.category}),
+        body: JSON.stringify(form),
       });
 
       if (response.ok) {
@@ -56,7 +56,7 @@ export default function CreateNewCategory(){
           <form className="p-2.5 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label htmlFor="category">カテゴリー</label>
-              <input id="category" name="category" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.category}/>
+              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name}/>
             </div>
 
             <div className="flex gap-4">

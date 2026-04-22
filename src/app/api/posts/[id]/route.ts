@@ -1,23 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
-// 記事詳細一覧APIのレスポンスの型
-export type PostShowResponse = {
-  post: {
-    id: number
-    title: string
-    content: string
-    thumbnailUrl: string
-    createdAt: Date
-    updatedAt: Date
-    postCategories: {
-      category: {
-        id: number
-        name: string
-      }
-    }[]
-  }
-}
+import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 
 // GETという命名にすることで、GETリクエストの時にこの関数が呼ばれる
 export const GET = async (

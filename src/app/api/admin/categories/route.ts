@@ -1,15 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextResponse } from "next/server";
-
-//// カテゴリー一覧取得
-export type CategoriesIndexResponse = {
-  categories: {
-    id: number
-    name: string
-    createdAt: Date
-    updatedAt: Date
-  }[]
-}
+import type { CategoriesIndexResponse } from "@/app/_type/CategoriesIndexResponse";
 
 export const GET = async () => {
   try {

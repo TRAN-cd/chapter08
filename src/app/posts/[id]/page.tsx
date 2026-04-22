@@ -5,9 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 
-
 const formatDate = (dateString: string | Date) => {
-  console.log("formatDateに渡された値:", dateString, "型:", typeof dateString);
   const date = new Date(dateString);
   
   return new Intl.DateTimeFormat('ja-JP', {
