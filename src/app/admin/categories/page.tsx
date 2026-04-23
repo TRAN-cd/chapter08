@@ -10,14 +10,15 @@ export default function AdminCategoriesComponent() {
 
   useEffect(() => {
     const fetcher = async() => {
+      setLoading(true)
       try {
-        setLoading(true)
         const response = await fetch('/api/admin/categories/');
         const { categories } = await response.json();
         setCategories(categories);
-        setLoading(false)
       } catch (error) {
         console.error("データ取得に失敗しました", error);
+      } finally {
+        setLoading(false)
       }
     }
 

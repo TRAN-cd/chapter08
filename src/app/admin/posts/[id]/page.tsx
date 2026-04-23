@@ -22,8 +22,8 @@ export default function PostEdit() {
     if (!id) return;
 
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const response = await fetch(`/api/admin/posts/${id}`);
         const data: PostShowResponse = await response.json();
         const { post } = data;
@@ -32,10 +32,11 @@ export default function PostEdit() {
         setContent(post.content)
         setThumbnailUrl(post.thumbnailUrl)
         setCategories(post.postCategories.map((pc) => pc.category))
-
-        setLoading(false);
+        
       } catch (error) {
         console.error("データ取得に失敗しました", error);
+      } finally {
+        setLoading(false);
       };
     }
 

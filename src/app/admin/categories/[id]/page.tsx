@@ -18,17 +18,18 @@ export default function CategoryEdit() {
     if (!id) return;
 
     const fetchCategory = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const response = await fetch(`/api/admin/categories/${id}`);
         const data: CategoryShowResponse = await response.json();
 
         console.log("取得したデータ:", data)
 
         setName(data.category.name);
-        setLoading(false);
       } catch (error) {
         console.error("データ取得に失敗しました", error);
+      } finally {
+        setLoading(false);
       };
     }
 
