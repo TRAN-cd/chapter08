@@ -10,8 +10,8 @@ export default function CreateNewCategory(){
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreate = async () => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/`, {
         method: 'POST',
         headers: {
