@@ -17,20 +17,24 @@ export const CategoriesSelect = ({
   const toggleCategory = (id: number) => {
     if (disabled) return;
 
+    // すでに選択済みかチェック
     const exists = selectedCategories.some((category) => category.id === id)
 
     if (exists) {
+      // 選択済みなら解除
       setSelectedCategories(
-        selectedCategories.filter((category) => category.id === id)
+        selectedCategories.filter((category) => category.id !== id)
       )
       return
     }
 
+    // 未選択なら追加
     const category = categories.find((c) => c.id === id)
     if (!category) return
     setSelectedCategories([...selectedCategories, category])
   }
 
+  // コンポーネント表示時にDBから全カテゴリーを取得する
   useEffect(() => {
     const fetcher = async () => {
       const response = await fetch('/api/admin/categories')
