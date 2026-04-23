@@ -1,17 +1,15 @@
 'use client';
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
+import { CategoryForm } from "../_components/CategoryForm";
 
 
 export default function CategoryEdit() {
   const router = useRouter();
+  const [name, setName] = useState('')
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    name: "",
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { id } = useParams<{ id: string }>();
@@ -26,10 +24,8 @@ export default function CategoryEdit() {
         const data: CategoryShowResponse = await response.json();
 
         console.log("取得したデータ:", data)
-        setForm({
-          name: data.category.name
-        })
 
+        setName(data.category.name);
         setLoading(false);
       } catch (error) {
         console.error("データ取得に失敗しました", error);
@@ -50,7 +46,7 @@ export default function CategoryEdit() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({name}),
       });
 
       if (response.ok) {
@@ -88,48 +84,21 @@ export default function CategoryEdit() {
     }
   }
 
-  const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    })
-  }
-
   return (
     <>
-      <div className="flex h-screen">
-        <nav className="w-[20%] h-full bg-gray-100">
-          <ul className="font-bold">
-            <li className="p-4">
-              <Link href="/admin/posts">記事一覧</Link>
-            </li>
-            <li className="p-4 bg-blue-200">
-              <Link href="/admin/categories">カテゴリー一覧</Link>
-            </li>
-          </ul>
-        </nav>
-        <div className="p-2.5 w-[80%]">
-          <div className="flex justify-between items-center pb-2">
-            <h1 className="text-xl font-extrabold tracking-wide">カテゴリー一覧</h1>
-          </div>
-          <form className="mb-4">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name">カテゴリー</label>
-              <input id="name" name="name" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.name} disabled={isSubmitting} />
-            </div>
-          </form>
-
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={handleUpdate}
-              className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" disabled={isSubmitting}>更新</button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer" disabled={isSubmitting}>削除</button>
-          </div>
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center pb-2">
+          <h1 className="text-xl font-extrabold tracking-wide">カテゴリー一覧</h1>
         </div>
+
+        <CategoryForm
+          mode="edit"
+          name={name}
+          setName={setName}
+          onSubmit={handleUpdate}
+          onDelete={handleDelete}
+          disabled={isSubmitting}
+        />
       </div>
     </>
   )

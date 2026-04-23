@@ -1,31 +1,23 @@
 'use client';
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import type { Category } from "@/app/_type/Category";
+import { PostForm } from "../_components/PostForm";
+
 
 export default function PostEdit() {
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [thumbnailUrl, setThumbnailUrl] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ① idを取得する
   const { id } = useParams<{ id: string}>();
-
-  // ② フォームの初期値を定義する
-  const [form, setForm] = useState({
-    title: "",
-    content: "",
-    thumbnailUrl: "",
-    categories: [] as { id: number }[]
-  });
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
-
-
-  // ③ データを読み込み中かどうかの判定
   const [loading, setLoading] = useState(true);
 
-  // ④ データを取得する
+  // データを取得する
   useEffect(() => {
     if (!id) return;
 
@@ -34,19 +26,12 @@ export default function PostEdit() {
         setLoading(true);
         const response = await fetch(`/api/admin/posts/${id}`);
         const data: PostShowResponse = await response.json();
-
-        // 取得したデータをformの状態に流し込む
         const { post } = data;
-        setForm({
-          title: post.title,
-          content: post.content,
-          thumbnailUrl: post.thumbnailUrl,
-          categories: post.postCategories.map(({ category }) => ({ id: category.id }))
-        });
 
-        console.log(post);
-        const currentIds = post.postCategories.map((pc) => pc.category.id);
-        setSelectedCategoryIds(currentIds);
+        setTitle(post.title)
+        setContent(post.content)
+        setThumbnailUrl(post.thumbnailUrl)
+        setCategories(post.postCategories.map((pc) => pc.category))
 
         setLoading(false);
       } catch (error) {
@@ -57,14 +42,8 @@ export default function PostEdit() {
     fetchData();
   }, [id]);
 
-  // ⑤ 更新処理関数
+  // 更新処理関数
   const handleUpdate = async () => {
-    // チェックボックスの最新状態をformのcategoriesに反映する
-    const updateForm = {
-      ...form,
-      categories: selectedCategoryIds.map(id => ({ id }))
-    };
-
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
@@ -72,7 +51,12 @@ export default function PostEdit() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateForm),
+        body: JSON.stringify({ 
+          title,
+          content,
+          thumbnailUrl,
+          categories: categories.map(c => ({ id: c.id })) 
+        }),
       });
 
       if (response.ok) {
@@ -87,7 +71,7 @@ export default function PostEdit() {
     }
   }
 
-  // ⑥ 削除処理関数
+  // 削除処理関数
   const router = useRouter();
   const handleDelete = async () => {
     if (!confirm('本当に削除しますか？')) return;
@@ -111,112 +95,25 @@ export default function PostEdit() {
     }
   }
 
-  // ⑦ 全カテゴリー情報を取得する
-  const [allCategories, setAllCategories] = useState<Category[]>([]);
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/admin/categories/");
-        const data: { categories: Category[] } = await response.json();
-
-        setAllCategories(data.categories);
-        // console.log(data.categories);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error);
-      };
-    }
-
-    fetchCategories();
-  }, [])
-
-  // ⑧ 選択中のカテゴリーを更新する関数
-  const handleToggleCategory = (categoryId: number) => {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId) // すでにあれば外す
-        : [...prev, categoryId]                  // なければ追加する
-    )
-  }
-
-  // ⑨ ハイドレーション対策：選択中のカテゴリーが取得される前にHTMLが読み込まれるので、マウント完了まで待たせる
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, [])
-
-  const handleForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    })
-  }
-
   return (
     <>
-      <div className="flex h-screen">
-        <nav className="w-[20%] h-full bg-gray-100">
-          <ul className="font-bold">
-            <li className="p-4 bg-blue-200">
-              <Link href="/admin/posts">記事一覧</Link>
-            </li>
-            <li className="p-4">
-              <Link href="/admin/categories">カテゴリー一覧</Link>
-            </li>
-          </ul>
-        </nav>
-        <div className="p-2.5 w-[80%]">
-          <h1 className="text-xl font-extrabold tracking-wide pb-2">記事編集</h1>
-          <form className="p-2.5 flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="title">タイトル</label>
-              <input id="title" name="title" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.title} disabled={isSubmitting}/>
-            </div>
+      <div className="container mx-auto px-4">
+        <h1 className="text-xl font-extrabold tracking-wide pb-2">記事編集</h1>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="content">内容</label>
-              <input id="content" name="content" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.content} disabled={isSubmitting}/>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="thumbnailUrl">サムネイルURL</label>
-              <input id="thumbnailUrl" name="thumbnailUrl" type="text" className="border border-b-gray-600 rounded-sm p-2" onChange={handleForm} value={form.thumbnailUrl} disabled={isSubmitting}/>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="categories">カテゴリー</label>
-              {isMounted && allCategories.map((category) => (
-                <div key={category.id}>
-                  <input
-                    type="checkbox"
-                    id={`cat-${category.id}`}
-                    name={category.name}
-                    value={category.name}
-                    className="mr-2"
-                    checked={selectedCategoryIds.includes(category.id)}
-                    onChange={() => handleToggleCategory(category.id)} 
-                    disabled={isSubmitting}/>
-                  <label htmlFor={`cat-${category.id}`}>{category.name}</label>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={handleUpdate}
-                className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer"
-                disabled={isSubmitting} >更新</button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="p-t-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer"
-                disabled={isSubmitting}>削除</button>
-            </div>
-          </form>
-        </div>
+        <PostForm 
+          mode="edit"
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          thumbnailUrl={thumbnailUrl}
+          setThumbnailUrl={setThumbnailUrl}
+          categories={categories}
+          setCategories={setCategories}
+          onSubmit={handleUpdate}
+          onDelete={handleDelete}
+          disabled={isSubmitting}
+        />
       </div>
     </>
   )
