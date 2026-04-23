@@ -92,34 +92,34 @@ export default function ContactForm() {
 
   return (
     <>
-      <div className="p-[10px] w-[90%]">
-        <h1 className="mb-[40px] text-xl font-bold">お問い合わせフォーム</h1>
+      <div className="p-2.5 w-[90%]">
+        <h1 className="mb-10 text-xl font-bold">お問い合わせフォーム</h1>
 
         <form action="">
-          <div className="w-full flex justify-between items-center mb-[20px]">
-            <label htmlFor="name" className="max-w-[170px] w-full font-semibold">お名前</label>
+          <div className="w-full flex justify-between items-center mb-5">
+            <label htmlFor="name" className="max-w-42.5 w-full font-semibold">お名前</label>
             <div className="max-w-[70%] w-full">
               <input
                 id="name"
                 name="name"
                 type="text"
-                className="w-full p-[16px] border-black border rounded-sm"
+                className="w-full p-4 border-black border rounded-sm"
                 value={form.name}
                 onChange={handleForm}
-                disabled={false}
+                disabled={isSubmitting}
               />
               <br />
               {errors.name && <p className="text-red-600">{errors.name}</p>}
             </div>
           </div>
-          <div className="w-full flex justify-between items-center mb-[20px]">
-            <label htmlFor="email" className="max-w-[170px] w-full font-semibold">メールアドレス</label>
+          <div className="w-full flex justify-between items-center mb-5">
+            <label htmlFor="email" className="max-w-42.5 w-full font-semibold">メールアドレス</label>
             <div className="max-w-[70%] w-full">
               <input
                 id="email"
                 name="email"
                 type="text"
-                className="w-full p-[16px] border-black border rounded-sm"
+                className="w-full p-4 border-black border rounded-sm"
                 value={form.email}
                 onChange={handleForm}
                 disabled={isSubmitting}
@@ -127,13 +127,13 @@ export default function ContactForm() {
               {errors.email && <p className="text-red-600">{errors.email}</p>}
             </div>
           </div>
-          <div className="w-full flex justify-between items-center mb-[20px]">
-            <label htmlFor="message" className="max-w-[170px] w-full font-semibold">本文</label>
+          <div className="w-full flex justify-between items-center mb-5">
+            <label htmlFor="message" className="max-w-42.5 w-full font-semibold">本文</label>
             <div className="max-w-[70%] w-full">
               <textarea
                 id="message"
                 name="message"
-                className="w-full p-[16px] border-black border rounded-sm"
+                className="w-full p-4 border-black border rounded-sm"
                 value={form.message}
                 onChange={handleForm}
                 disabled={isSubmitting}
@@ -144,10 +144,10 @@ export default function ContactForm() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-[20px] mt-[30px]">
+          <div className="flex justify-center gap-5 mt-7.5">
             <button
               type="button"
-              className="text-base font-bold text-white bg-black pt-[5px] pb-[5px] pr-[15px] pl-[15px] rounded-sm cursor-pointer"
+              className="text-base font-bold text-white bg-black pt-1.25 pb-1.25 pr-3.75 pl-3.75 rounded-sm cursor-pointer"
               onClick={handleValidate}
               disabled={isSubmitting}
             >
@@ -155,7 +155,7 @@ export default function ContactForm() {
             </button>
             <button
               type="button"
-              className="text-base font-bold bg-gray-300 pt-[5px] pb-[5px] pr-[15px] pl-[15px] rounded-sm cursor-pointer"
+              className="text-base font-bold bg-gray-300 pt-1.25 pb-1.25 pr-3.75 pl-3.75 rounded-sm cursor-pointer"
               onClick={handleReset}
             >
               クリア
