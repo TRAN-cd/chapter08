@@ -69,7 +69,7 @@ export const PostForm = ({
           name="thumbnailUrl"
           type="text"
           className="border border-b-gray-600 rounded-sm p-2"
-          onChange={(e) => (e.target.value)}
+          onChange={(e) => setThumbnailUrl(e.target.value)}
           value={thumbnailUrl}
           disabled={disabled} />
       </div>
