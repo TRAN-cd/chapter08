@@ -19,7 +19,7 @@ export const CategoryForm = ({
   disabled
 }: Props) => {
   return (
-    <form className="mb-4">
+    <form className="mb-4" onClick={onSubmit}>
       <div className="flex flex-col gap-2">
         <label htmlFor="name">カテゴリー</label>
         <input
@@ -34,8 +34,7 @@ export const CategoryForm = ({
 
       <div className="flex gap-4 pt-4">
         <button
-          type="button"
-          onClick={onSubmit}
+          type="submit"
           className="py-2 px-4 bg-indigo-700 text-white rounded-lg cursor-pointer" disabled={disabled}>
           {mode === 'new' ? '作成' : '更新'}
         </button>
