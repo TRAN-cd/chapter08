@@ -26,7 +26,7 @@ export default function AdminCategoriesComponent() {
   }, []);
 
   if (loading) return <p>カテゴリーを読み込み中です...</p>
-  if (categories.length === 0) return <p>データがありません。</p>
+  // if (categories.length === 0) return <p>データがありません。</p>
 
   return (
     <>
@@ -37,12 +37,16 @@ export default function AdminCategoriesComponent() {
             <button className="text-white font-bold bg-blue-400 pt-2 pb-2 pl-4 pr-4 rounded-sm">新規作成</button>
           </Link>
         </div>
-        {categories.map((elem) => (
-          <Link href={`/admin/categories/${elem.id}`} key={elem.id} className="block border-b border-[#9e9e9e]">
-            <p className="pt-4 pb-4 pl-2 pr-2 font-bold">{elem.name}</p>
-          </Link>
-        ))
-        }
+
+        {categories.length === 0 ? (
+          <p>データがありません。</p>
+        ) : (
+          categories.map((elem) => (
+            <Link href={`/admin/categories/${elem.id}`} key={elem.id} className="block border-b border-[#9e9e9e]">
+              <p className="pt-4 pb-4 pl-2 pr-2 font-bold">{elem.name}</p>
+            </Link>
+          ))
+        )}
       </div>
     </>
   )
