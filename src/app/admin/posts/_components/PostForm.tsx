@@ -36,7 +36,7 @@ export const PostForm = ({
   disabled
 }: Props) => {
   return (
-    <form className="p-2.5 flex flex-col gap-6" onClick={onSubmit}>
+    <form className="p-2.5 flex flex-col gap-6" onSubmit={onSubmit}>
 
       <div className="flex flex-col gap-2">
         <label htmlFor="title">タイトル</label>
