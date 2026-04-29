@@ -11,7 +11,9 @@ export default function CreateNewCategory(){
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useSupabaseSession();
 
-  const handleCreate = async () => {
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!token) return
     setIsSubmitting(true);
 
@@ -27,7 +29,7 @@ export default function CreateNewCategory(){
 
       if (response.ok) {
         alert("カテゴリーが作成されました。")
-        router.push('/admin/categories')
+        // router.push('/admin/categories')
       } else {
         alert("カテゴリーの作成に失敗しました。")
       }

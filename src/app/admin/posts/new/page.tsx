@@ -17,7 +17,9 @@ export default function CreateNewPost() {
   const { token } = useSupabaseSession();
 
 
-  const handleCreate = async () => {
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!token) return
     setIsSubmitting(true);
 
