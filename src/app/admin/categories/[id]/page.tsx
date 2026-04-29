@@ -47,7 +47,9 @@ export default function CategoryEdit() {
   if (loading) return <p>読み込み中...</p>
 
   // 更新処理関数
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     if (!token) return
 
     try {

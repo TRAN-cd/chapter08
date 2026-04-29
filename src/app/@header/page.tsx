@@ -6,7 +6,7 @@ import { useSupabaseSession } from '../_hooks/useSupabaseSession'
 import { supabase } from '../_libs/supabase'
 import { useRouter } from 'next/navigation'
 
-export const Header: React.FC = () => {
+export default function Header() {
   const router = useRouter();
 
   const handleLogout = async () => {

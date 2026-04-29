@@ -46,7 +46,7 @@ export type CreatePostRequestBody = {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 // 記事作成APIのレスポンスの型
@@ -64,8 +64,8 @@ export const POST = async (request: NextRequest) => {
     // リクエストのbodyを取得
     const body: CreatePostRequestBody = await request.json()
 
-    // bodyの中からtitle, content, categories, thumbnailUrlを取り出す
-    const { title, content, categories, thumbnailUrl } = body
+    // bodyの中からtitle, content, categories, thumbnailImageKeyを取り出す
+    const { title, content, categories, thumbnailImageKey } = body
 
     // 記事をDBに生成
     // prisma.post.createはSQLの INSERT INTOに相当する
@@ -73,7 +73,7 @@ export const POST = async (request: NextRequest) => {
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 

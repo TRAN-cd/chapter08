@@ -11,7 +11,7 @@ export default function CreateNewPost() {
   const router = useRouter();
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [thumbnailUrl, setThumbnailUrl] = useState('')
+  const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useSupabaseSession();
@@ -34,7 +34,7 @@ export default function CreateNewPost() {
         body: JSON.stringify({ 
           title,
           content,
-          thumbnailUrl,
+          thumbnailImageKey,
           categories: categories.map(c => ({ id: c.id })) 
         }),
       });
@@ -63,8 +63,8 @@ export default function CreateNewPost() {
           setTitle={setTitle}
           content={content}
           setContent={setContent}
-          thumbnailUrl={thumbnailUrl}
-          setThumbnailUrl={setThumbnailUrl}
+          thumbnailImageKey={thumbnailImageKey}
+          setThumbnailImageKey={setThumbnailImageKey}
           categories={categories}
           setCategories={setCategories}
           onSubmit={handleCreate}

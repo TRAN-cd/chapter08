@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { PostThumbnail } from "@/app/_components/PostThumbnail";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -64,10 +65,9 @@ export default function AdminPostComponent(){
           posts.map((elem, index) => (
             <Link href={`/admin/posts/${elem.id}`} key={elem.id} className="block border-b border-[#9e9e9e]">
               <div className="flex flex-col gap-2.5 pt-2.5 pb-2.5 sm:flex-row">
-                <div className="max-w-full w-full sm:max-w-[40%]">
+                {/* <div className="max-w-full w-full sm:max-w-[40%]">
                   <Image src="https://placehold.jp/800x400.png" alt={elem.thumbnailUrl} width={800} height={400} className="w-full align-bottom"/>
-                  {/* <Image src={elem.thumbnailUrl} alt={elem.thumbnailUrl} width={800} height={400} className="w-full align-bottom"/> */}
-                </div>
+                </div> */}
                 <div className="flex flex-col gap-2.5 w-full sm:w-[60%]">
                   <div className="flex items-center gap-2.5">
                     <p>{formatDate(elem.createdAt)}</p>

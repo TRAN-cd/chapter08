@@ -7,12 +7,12 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  const {id} = await params
-
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
+
+  const {id} = await params
 
   try {
     const category = await prisma.category.findUnique({
@@ -42,13 +42,13 @@ export const PUT = async(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  const { id } = await params
 
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
-
+    
+  const { id } = await params
   const { name }: UpdateCategoryRequestBody = await request.json()
 
   try {
@@ -73,12 +73,13 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  const { id } = await params
 
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
+
+  const { id } = await params
 
   try {
     await prisma.category.delete({

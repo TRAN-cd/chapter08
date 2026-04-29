@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse";
+import { PostThumbnail } from "../_components/PostThumbnail";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
-  
+
   return new Intl.DateTimeFormat('ja-JP', {
     year: 'numeric',
     month: 'long',
@@ -15,8 +16,8 @@ const formatDate = (dateString: string | Date) => {
   }).format(date);
 };
 
-export default function PostComponent(){
-  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([])  //
+export default function PostComponent() {
+  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([])
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -32,10 +33,10 @@ export default function PostComponent(){
         setLoading(false)
       }
     }
-  
+
     fetcher();
   }, []);
-  
+
   if (loading) return <p>記事を読み込み中です...</p>;
   if (posts.length === 0) return <p>データがありません。</p>;
 
@@ -46,7 +47,7 @@ export default function PostComponent(){
         {posts.map((elem, index) => (
           <Link href={`/posts/${elem.id}`} className="flex flex-col gap-2.5 pb-2.5 sm:flex-row" key={index}>
             <div className="max-w-full w-full sm:max-w-[50%]">
-              <Image src={elem.thumbnailUrl} alt="" width={800} height={400} className="w-full align-bottom"/>
+              <PostThumbnail imageKey={elem.thumbnailImageKey} alt={elem.title}/>
             </div>
             <div className="flex flex-col gap-2.5 w-full sm:w-[50%]">
               <div className="flex items-center gap-2.5">

@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
+import { supabase } from '@/app/_libs/supabase';
+import { PostThumbnail } from "@/app/_components/PostThumbnail";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
-  
+
   return new Intl.DateTimeFormat('ja-JP', {
     year: 'numeric',
     month: 'long',
@@ -15,10 +17,10 @@ const formatDate = (dateString: string | Date) => {
   }).format(date);
 };
 
-export default function Post(){
+export default function Post() {
   const [post, setPosts] = useState<PostShowResponse["post"] | null>(null);
-
   const { id } = useParams();
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -30,9 +32,25 @@ export default function Post(){
         console.error("データ取得に失敗しました", error);
       }
     }
-  
+
     fetcher();
   }, [id]);
+
+  useEffect(() => {
+    if (!post?.thumbnailImageKey) return
+
+    // アップロード時に取得した、thumbnailImageKeyを用いて画像のURLを取得
+    const fetcher = async () => {
+      const { data } = await supabase.storage
+        .from('post_thumbnail')
+        .getPublicUrl(post.thumbnailImageKey)
+
+      setThumbnailImageUrl(data.publicUrl)
+    }
+
+    fetcher()
+  }, [post?.thumbnailImageKey])
+
 
   if (!post) {
     return (
@@ -47,9 +65,9 @@ export default function Post(){
   return (
     <>
       <div className="p-2.5 max-w-[80%] w-full mx-auto">
-        <div className="flex flex-col gap-2.5">
+        <div className="max-w-4/5 m-auto flex flex-col gap-2.5">
           <div className="w-full">
-            <Image src={post.thumbnailUrl} width={800} height={400} alt="w-full align-bottom" />
+            <PostThumbnail imageKey={post.thumbnailImageKey} alt={post.title}/>
           </div>
           <div className="flex flex-col gap-2.5 w-full">
             <div className="flex items-center gap-2.5">

@@ -9,12 +9,13 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  const { id } = await params
 
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
+
+  const { id } = await params
 
   try {
     const post = await prisma.post.findUnique({
@@ -52,22 +53,23 @@ export type UpdatePostRequestBody = {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  // どの記事を更新するか 特定する必要があるため、paramsからidを取得
-  const { id } = await params
 
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
 
-  const { title, content, categories, thumbnailUrl }: UpdatePostRequestBody = await request.json()
+  // どの記事を更新するか 特定する必要があるため、paramsからidを取得
+  const { id } = await params
+
+  const { title, content, categories, thumbnailImageKey }: UpdatePostRequestBody = await request.json()
 
   try {
     // idを指定して、Postを更新
@@ -78,7 +80,7 @@ export const PUT = async (
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 
@@ -111,12 +113,13 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
-  const { id } = await params
 
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
     return NextResponse.json({ status: error.message }, { status: 400 })
+
+  const { id } = await params
 
   try {
     await prisma.post.delete({

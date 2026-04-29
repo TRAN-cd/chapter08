@@ -11,10 +11,10 @@ import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 export default function PostEdit() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [thumbnailUrl, setThumbnailUrl] = useState('')
+  const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const router = useRouter();
   const { id } = useParams<{ id: string}>();
   const [loading, setLoading] = useState(true);
   const { token } = useSupabaseSession();
@@ -38,7 +38,7 @@ export default function PostEdit() {
 
         setTitle(post.title)
         setContent(post.content)
-        setThumbnailUrl(post.thumbnailUrl)
+        setThumbnailImageKey(post.thumbnailImageKey)
         setCategories(post.postCategories.map((pc) => pc.category))
         
       } catch (error) {
@@ -52,7 +52,8 @@ export default function PostEdit() {
   }, [id, token]);
 
   // 更新処理関数
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!token) return
     
     try {
@@ -66,7 +67,7 @@ export default function PostEdit() {
         body: JSON.stringify({ 
           title,
           content,
-          thumbnailUrl,
+          thumbnailImageKey,
           categories: categories.map(c => ({ id: c.id })) 
         }),
       });
@@ -84,7 +85,6 @@ export default function PostEdit() {
   }
 
   // 削除処理関数
-  const router = useRouter();
   const handleDelete = async () => {
     if (!token) return
     if (!confirm('本当に削除しますか？')) return;
@@ -124,8 +124,8 @@ export default function PostEdit() {
           setTitle={setTitle}
           content={content}
           setContent={setContent}
-          thumbnailUrl={thumbnailUrl}
-          setThumbnailUrl={setThumbnailUrl}
+          thumbnailImageKey={thumbnailImageKey}
+          setThumbnailImageKey={setThumbnailImageKey}
           categories={categories}
           setCategories={setCategories}
           onSubmit={handleUpdate}
