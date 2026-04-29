@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import type { Category } from "@/app/_type/Category";
 import { PostForm } from "../_components/PostForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function PostEdit() {
@@ -16,15 +17,22 @@ export default function PostEdit() {
 
   const { id } = useParams<{ id: string}>();
   const [loading, setLoading] = useState(true);
+  const { token } = useSupabaseSession();
 
   // データを取得する
   useEffect(() => {
+    if (!token) return
     if (!id) return;
 
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/admin/posts/${id}`);
+        const response = await fetch(`/api/admin/posts/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         const data: PostShowResponse = await response.json();
         const { post } = data;
 
@@ -41,16 +49,19 @@ export default function PostEdit() {
     }
 
     fetchData();
-  }, [id]);
+  }, [id, token]);
 
   // 更新処理関数
   const handleUpdate = async () => {
+    if (!token) return
+    
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
         body: JSON.stringify({ 
           title,
@@ -75,11 +86,17 @@ export default function PostEdit() {
   // 削除処理関数
   const router = useRouter();
   const handleDelete = async () => {
+    if (!token) return
     if (!confirm('本当に削除しますか？')) return;
+
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
       });
 
       if (response.ok) {

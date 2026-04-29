@@ -2,13 +2,19 @@ import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import type { Category } from "@/app/_type/Category";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse"
+import { supabase } from "@/app/_libs/supabase";
 
 //// 記事詳細取得
 export const GET = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
   const { id } = await params
+
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
 
   try {
     const post = await prisma.post.findUnique({
@@ -56,6 +62,11 @@ export const PUT = async (
   // どの記事を更新するか 特定する必要があるため、paramsからidを取得
   const { id } = await params
 
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
+
   const { title, content, categories, thumbnailUrl }: UpdatePostRequestBody = await request.json()
 
   try {
@@ -97,10 +108,15 @@ export const PUT = async (
 
 //// 記事削除
 export const DELETE = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
   const { id } = await params
+
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
 
   try {
     await prisma.post.delete({

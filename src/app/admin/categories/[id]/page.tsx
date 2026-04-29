@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
 import { CategoryForm } from "../_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function CategoryEdit() {
@@ -11,16 +12,23 @@ export default function CategoryEdit() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { id } = useParams<{ id: string }>();
+  const { token } = useSupabaseSession();
+
 
   useEffect(() => {
+    if (!token) return
     if (!id) return;
 
     const fetchCategory = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/admin/categories/${id}`);
+        const response = await fetch(`/api/admin/categories/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         const data: CategoryShowResponse = await response.json();
 
         console.log("取得したデータ:", data)
@@ -34,18 +42,21 @@ export default function CategoryEdit() {
     }
 
     fetchCategory();
-  }, [id])
+  }, [id, token])
 
   if (loading) return <p>読み込み中...</p>
 
   // 更新処理関数
   const handleUpdate = async () => {
+    if (!token) return
+
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
         body: JSON.stringify({name}),
       });
@@ -64,11 +75,17 @@ export default function CategoryEdit() {
 
   // 削除処理関数
   const handleDelete = async () => {
+    if (!token) return
     if (!confirm('本当に削除しますか？')) return;
+
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/admin/categories/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
       });
 
       if (response.ok) {

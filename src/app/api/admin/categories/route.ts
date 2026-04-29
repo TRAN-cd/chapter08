@@ -1,8 +1,14 @@
 import { prisma } from "@/app/_libs/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import type { CategoriesIndexResponse } from "@/app/_type/CategoriesIndexResponse";
+import { supabase } from "@/app/_libs/supabase";
 
-export const GET = async () => {
+export const GET = async (request: NextRequest) => {
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
+
   try {
     const categories = await prisma.category.findMany({
       orderBy: {
@@ -29,6 +35,11 @@ export type CreateCategoryResponse = {
 }
 
 export const POST = async (request: Request) => {
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
+  
   try {
     // リクエストのbodyを取得
     const body = await request.json()

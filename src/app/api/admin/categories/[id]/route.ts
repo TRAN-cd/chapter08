@@ -1,12 +1,18 @@
 import { prisma } from "@/app/_libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
+import { supabase } from "@/app/_libs/supabase";
 
 export const GET = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
   const {id} = await params
+
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
 
   try {
     const category = await prisma.category.findUnique({
@@ -38,6 +44,11 @@ export const PUT = async(
 ) => {
   const { id } = await params
 
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
+
   const { name }: UpdateCategoryRequestBody = await request.json()
 
   try {
@@ -59,10 +70,15 @@ export const PUT = async(
 
 //// 記事削除
 export const DELETE = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }>}
 ) => {
   const { id } = await params
+
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 400 })
 
   try {
     await prisma.category.delete({

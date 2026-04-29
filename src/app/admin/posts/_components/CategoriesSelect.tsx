@@ -1,5 +1,6 @@
 import { Category } from '@/app/_type/Category'
 import { useEffect, useState  } from 'react'
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 interface Props {
   selectedCategories: Category[]
@@ -13,6 +14,7 @@ export const CategoriesSelect = ({
   disabled
 }: Props) => {
   const [categories, setCategories] = useState<Category[]>([])
+  const { token } = useSupabaseSession();
 
   const toggleCategory = (id: number) => {
     if (disabled) return;
@@ -36,14 +38,21 @@ export const CategoriesSelect = ({
 
   // コンポーネント表示時にDBから全カテゴリーを取得する
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async () => {
-      const response = await fetch('/api/admin/categories')
+      const response = await fetch('/api/admin/categories', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
       const { categories } = await response.json()
       setCategories(categories)
     }
 
     fetcher()
-  }, [])
+  }, [token])
 
 
   return (

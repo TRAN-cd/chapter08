@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -18,12 +19,20 @@ const formatDate = (dateString: string | Date) => {
 export default function AdminPostComponent(){
   const [posts, setPosts] = useState<PostsIndexResponse['posts']>([]);
   const [loading, setLoading] = useState(false);
+  const { token } = useSupabaseSession();
 
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async () => {
       setLoading(true)
       try {
-        const response = await fetch('/api/admin/posts/');
+        const response = await fetch('/api/admin/posts/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         const { posts } = await response.json();
         setPosts(posts);
       } catch (error) {
@@ -34,7 +43,7 @@ export default function AdminPostComponent(){
     }
 
     fetcher()
-  }, []);
+  }, [token]);
 
   if (loading) return <p>記事を読み込み中です...</p>
   // if (posts.length === 0) return <p>データがありません。</p>

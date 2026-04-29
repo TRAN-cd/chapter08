@@ -3,16 +3,25 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CategoriesIndexResponse } from "@/app/_type/CategoriesIndexResponse";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function AdminCategoriesComponent() {
   const [categories, setCategories] = useState<CategoriesIndexResponse['categories']>([]);
   const [loading, setLoading] = useState(false);
+  const { token } = useSupabaseSession();
 
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async() => {
       setLoading(true)
       try {
-        const response = await fetch('/api/admin/categories/');
+        const response = await fetch('/api/admin/categories/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
         const { categories } = await response.json();
         setCategories(categories);
       } catch (error) {
@@ -23,7 +32,7 @@ export default function AdminCategoriesComponent() {
     }
 
     fetcher()
-  }, []);
+  }, [token]);
 
   if (loading) return <p>カテゴリーを読み込み中です...</p>
   // if (categories.length === 0) return <p>データがありません。</p>

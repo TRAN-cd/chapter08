@@ -3,19 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CategoryForm } from "../_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function CreateNewCategory(){
   const router = useRouter();
   const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useSupabaseSession();
 
   const handleCreate = async () => {
+    if (!token) return
     setIsSubmitting(true);
+
     try {
       const response = await fetch(`/api/admin/categories/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
         body: JSON.stringify({name}),
       });

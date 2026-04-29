@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/app/_type/Category";
 import { PostForm } from "../_components/PostForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function CreateNewPost() {
@@ -13,14 +14,19 @@ export default function CreateNewPost() {
   const [thumbnailUrl, setThumbnailUrl] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useSupabaseSession();
+
 
   const handleCreate = async () => {
+    if (!token) return
+    setIsSubmitting(true);
+
     try {
-      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
         // ここでCreatePostRequestBody型のデータを送信
         body: JSON.stringify({ 
