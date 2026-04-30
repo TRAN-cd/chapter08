@@ -3,6 +3,8 @@
 import { supabase } from "@/app/_libs/supabase"
 import { useState } from "react"
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
 export default function Page(){
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +20,7 @@ export default function Page(){
       password,
       options: {
         // 送信するとメアドの検証メールが送られ、そのメール内に載せる登録ページURLを指定できる
-        emailRedirectTo: `http://localhost:3000/login`,
+        emailRedirectTo: `${appUrl}/login`,
       },
     })
 
