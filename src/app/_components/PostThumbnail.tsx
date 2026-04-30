@@ -30,7 +30,7 @@ export const PostThumbnail = ({ imageKey, alt }: { imageKey: string, alt: string
       alt={thumbnailImageUrl ? alt : "thumbnail"}
       width={800}
       height={400}
-      className={`w-full align-bottom ${!thumbnailImageUrl ? "animate-pulse bg-gray-200" : ""}`}
+      className={`max-w-full align-bottom ${!thumbnailImageUrl ? "animate-pulse bg-gray-200" : ""}`}
     />
   );
 };

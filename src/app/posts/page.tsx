@@ -46,7 +46,7 @@ export default function PostComponent() {
         <h1 className="text-xl font-extrabold tracking-wide">記事一覧</h1>
         {posts.map((elem, index) => (
           <Link href={`/posts/${elem.id}`} className="flex flex-col gap-2.5 pb-2.5 sm:flex-row" key={index}>
-            <div className="max-w-full w-full sm:max-w-[50%]">
+            <div className="max-w-1/3">
               <PostThumbnail imageKey={elem.thumbnailImageKey} alt={elem.title}/>
             </div>
             <div className="flex flex-col gap-2.5 w-full sm:w-[50%]">

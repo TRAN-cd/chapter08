@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
 import { CategoriesSelect } from './CategoriesSelect'
 import { Category } from '@/app/_type/Category'
 import { supabase } from '@/app/_libs/supabase'
 import { v4 as uuidv4 } from 'uuid'
-import Image from "next/image";
+import { PostThumbnail } from "@/app/_components/PostThumbnail";
 interface Props {
   mode: 'new' | 'edit'
   title: string
@@ -37,28 +36,6 @@ export const PostForm = ({
   onDelete,
   disabled
 }: Props) => {
-
-  // アップロードした画像の表示する実装
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(null)
-
-  useEffect(() => {
-    if (!thumbnailImageKey) return
-
-    // アップロード時に取得した、thumbnailImageKeyを用いて画像のURLを取得
-    const fetcher = async () => {
-      const {
-        data: { publicUrl },
-      } = await supabase.storage
-        .from('post_thumbnail')
-        .getPublicUrl(thumbnailImageKey)
-
-      setThumbnailImageUrl(publicUrl)
-    }
-
-    fetcher()
-  }, [thumbnailImageKey])
-
-  // const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   // 画像アップロード機能
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (!event.target.files || event.target.files.length == 0) {
@@ -130,17 +107,7 @@ export const PostForm = ({
           // value={thumbnailImageKey}
           disabled={disabled}
           accept='image/*' />
-
-        {thumbnailImageUrl && (
-          <div className="mt-2">
-            <Image
-              src={thumbnailImageUrl}
-              alt="thumbnail"
-              width={400}
-              height={400}
-            />
-          </div>
-        )}
+        <PostThumbnail imageKey={thumbnailImageKey} alt={title}/>
       </div>
 
       <div className="flex flex-col gap-2">
