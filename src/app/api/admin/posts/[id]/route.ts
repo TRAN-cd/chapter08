@@ -13,7 +13,7 @@ export const GET = async (
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   const { id } = await params
 
@@ -64,7 +64,7 @@ export const PUT = async (
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   // どの記事を更新するか 特定する必要があるため、paramsからidを取得
   const { id } = await params
@@ -117,7 +117,7 @@ export const DELETE = async (
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   const { id } = await params
 

@@ -7,7 +7,7 @@ export const GET = async (request: NextRequest) => {
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   try {
     const categories = await prisma.category.findMany({
@@ -38,7 +38,7 @@ export const POST = async (request: Request) => {
   const token = request.headers.get('Authorization') ?? ''
   const { error } = await supabase.auth.getUser(token)
   if (error)
-    return NextResponse.json({ status: error.message }, { status: 400 })
+    return NextResponse.json({ status: error.message }, { status: 401 })
   
   try {
     // リクエストのbodyを取得
