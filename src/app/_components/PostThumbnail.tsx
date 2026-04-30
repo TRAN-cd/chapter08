@@ -9,11 +9,7 @@ export const PostThumbnail = ({ imageKey, alt }: { imageKey: string, alt: string
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(null);
 
   useEffect(() => {
-    // 空ならダミー画像（null）をセットして終了
-    if (!imageKey) {
-      setThumbnailImageUrl(null);
-      return;
-    }
+    if (!imageKey) return;
 
     // すでにURLならそのままセット
     if (imageKey.startsWith("http")) {
