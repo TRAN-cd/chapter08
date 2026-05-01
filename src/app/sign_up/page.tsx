@@ -117,7 +117,7 @@ export default function Page() {
               minLength: { value: 6, message: "6文字以上で入力してください" }
             })}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            placeholder="name@company.com"
+            placeholder="••••••••"
           />
           {errors.password &&
             <span className="text-red-500 text-xs mt-1">
@@ -137,5 +137,4 @@ export default function Page() {
       </form>
     </div>
   )
-
 }
