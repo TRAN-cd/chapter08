@@ -81,7 +81,6 @@ export const PostForm = ({
           <label htmlFor="title">タイトル</label>
           <input
             id='title'
-            // type="text"
             {...register("title", {
               required: "タイトルが入力されていません。",
             })}
@@ -94,7 +93,6 @@ export const PostForm = ({
           <label htmlFor="content">内容</label>
           <input
             id='content'
-            // type="text"
             {...register("content", {
               required: "内容が入力されていません。",
             })}
@@ -106,7 +104,6 @@ export const PostForm = ({
         <div className="flex flex-col gap-2">
           <label htmlFor="thumbnailImageKey">サムネイル</label>
           <input
-            // id='thumbnailImageKey'
             accept='image/*'
             onChange={handleImageChange}
             type="file"
@@ -151,8 +148,8 @@ export const PostForm = ({
             <button
               type="button"
               onClick={onDelete}
-              className="pt-2 px-4 bg-red-700 text-white rounded-lg cursor-pointer"
-              disabled={!isDirty || !isValid || isSubmitting}>
+              className="px-4 bg-red-700 text-white rounded-lg cursor-pointer"
+              disabled={isSubmitting}>
               削除
             </button>
           )}

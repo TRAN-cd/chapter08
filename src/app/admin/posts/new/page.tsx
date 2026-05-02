@@ -1,27 +1,21 @@
 'use client';
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Category } from "@/app/_type/Category";
-import { PostForm } from "../_components/PostForm";
+import { PostForm, PostFormInputs } from "../_components/PostForm";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function CreateNewPost() {
   const router = useRouter();
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [thumbnailImageKey, setThumbnailImageKey] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useSupabaseSession();
 
+  // PostForm 内の handleSubmit(onSubmit) から、バリデーション済みのデータが渡される
+  const handleCreate = async (data: PostFormInputs) => {
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!token) return
-    setIsSubmitting(true);
+    if (!token) {
+      alert("認証セッションが見つかりません。")
+      return
+    }
 
     try {
       const response = await fetch(`/api/admin/posts/`, {
@@ -32,24 +26,23 @@ export default function CreateNewPost() {
         },
         // ここでCreatePostRequestBody型のデータを送信
         body: JSON.stringify({ 
-          title,
-          content,
-          thumbnailImageKey,
-          categories: categories.map(c => ({ id: c.id })) 
+          title: data.title,
+          content: data.content,
+          thumbnailImageKey: data.thumbnailImageKey,
+          categories: data.categories.map(c => ({ id: c.id })) 
         }),
       });
 
       if (response.ok) {
         alert("記事が作成されました。")
         router.push('/admin/posts')
+        router.refresh()
       } else {
         alert("記事の作成に失敗しました。")
       }
     } catch (error) {
       console.log('新規作成エラー', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } 
   }
 
   return (
@@ -59,16 +52,8 @@ export default function CreateNewPost() {
 
         <PostForm
           mode="new"
-          title={title}
-          setTitle={setTitle}
-          content={content}
-          setContent={setContent}
-          thumbnailImageKey={thumbnailImageKey}
-          setThumbnailImageKey={setThumbnailImageKey}
-          categories={categories}
-          setCategories={setCategories}
           onSubmit={handleCreate}
-          disabled={isSubmitting}
+          disabled={false}
         />
       </div>
     </>

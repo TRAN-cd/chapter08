@@ -3,26 +3,22 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
-import type { Category } from "@/app/_type/Category";
-import { PostForm } from "../_components/PostForm";
+import { PostForm, PostFormInputs } from "../_components/PostForm";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function PostEdit() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [thumbnailImageKey, setThumbnailImageKey] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { id } = useParams<{ id: string}>();
-  const [loading, setLoading] = useState(true);
   const { token } = useSupabaseSession();
+
+  // フォームに渡すための初期データを管理するState
+  const [initialData, setInitialData] = useState<PostFormInputs | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // データを取得する
   useEffect(() => {
-    if (!token) return
-    if (!id) return;
+    if (!token || !id) return
 
     const fetchData = async () => {
       setLoading(true);
@@ -36,11 +32,13 @@ export default function PostEdit() {
         const data: PostShowResponse = await response.json();
         const { post } = data;
 
-        setTitle(post.title)
-        setContent(post.content)
-        setThumbnailImageKey(post.thumbnailImageKey)
-        setCategories(post.postCategories.map((pc) => pc.category))
-        
+        // RHFの PostFormInputs 型に合うように整形してセット
+        setInitialData({
+          title: post.title,
+          content: post.content,
+          thumbnailImageKey: post.thumbnailImageKey,
+          categories: post.postCategories.map((pc) => pc.category),
+        });
       } catch (error) {
         console.error("データ取得に失敗しました", error);
       } finally {
@@ -52,12 +50,10 @@ export default function PostEdit() {
   }, [id, token]);
 
   // 更新処理関数
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdate = async (data: PostFormInputs) => {
     if (!token) return
     
     try {
-      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
         headers: {
@@ -65,22 +61,21 @@ export default function PostEdit() {
           Authorization: token,
         },
         body: JSON.stringify({ 
-          title,
-          content,
-          thumbnailImageKey,
-          categories: categories.map(c => ({ id: c.id })) 
+          title: data.title,
+          content: data.content,
+          thumbnailImageKey: data.thumbnailImageKey,
+          categories: data.categories.map((c) => ({ id: c.id })),
         }),
       });
 
       if (response.ok) {
         alert('記事を更新しました。')
+        router.refresh();
       } else {
         alert('更新に失敗しました。')
       }
     } catch (error) {
       console.log('更新エラー', error);
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -90,7 +85,6 @@ export default function PostEdit() {
     if (!confirm('本当に削除しますか？')) return;
 
     try {
-      setIsSubmitting(true);
       const response = await fetch(`/api/admin/posts/${id}`, {
         method: 'DELETE',
         headers: {
@@ -102,15 +96,24 @@ export default function PostEdit() {
       if (response.ok) {
         alert('削除しました。');
         router.push('/admin/posts');
+        router.refresh();
       } else {
         alert('削除に失敗しました。')
       }
 
     } catch (error) {
       console.error('削除エラー:', error)
-    } finally {
-      setIsSubmitting(false);
     }
+  }
+
+  // データ取得中はローディングを表示し、PostForm のマウントを遅らせる
+  if (loading) {
+    return <div className="container mx-auto px-4 py-10">読み込み中...</div>
+  }
+
+  // データが取得できなかった場合のガード
+  if (!initialData) {
+    return <div className="container mx-auto px-4 py-10">記事が見つかりませんでした。</div>
   }
 
   return (
@@ -120,17 +123,10 @@ export default function PostEdit() {
 
         <PostForm 
           mode="edit"
-          title={title}
-          setTitle={setTitle}
-          content={content}
-          setContent={setContent}
-          thumbnailImageKey={thumbnailImageKey}
-          setThumbnailImageKey={setThumbnailImageKey}
-          categories={categories}
-          setCategories={setCategories}
+          defaultValues={initialData}
           onSubmit={handleUpdate}
           onDelete={handleDelete}
-          disabled={isSubmitting}
+          disabled={false}
         />
       </div>
     </>

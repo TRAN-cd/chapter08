@@ -1,7 +1,6 @@
 'use client';
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
