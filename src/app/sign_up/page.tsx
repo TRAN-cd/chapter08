@@ -130,7 +130,7 @@ export default function Page() {
           <button
             type="submit"
             className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 text-center"
-            disabled={!isDirty || !isValid}>
+            disabled={!isDirty || !isValid || isSubmitting}>
             登録
           </button>
         </div>
