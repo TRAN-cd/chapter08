@@ -1,10 +1,27 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 import { PostThumbnail } from "@/app/_components/PostThumbnail";
+import useSWR from 'swr';
+
+// 1. fetcherをasync-awaitで定義
+const fetcher = async ([url, token]: [string, string]) => {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('データ取得に失敗しました');
+  }
+
+  const data: PostsIndexResponse = await response.json();
+  return data.posts;
+};
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -17,36 +34,15 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function AdminPostComponent(){
-  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([]);
-  const [loading, setLoading] = useState(false);
   const { token } = useSupabaseSession();
 
-  useEffect(() => {
-    if (!token) return
+  const { data: posts, error, isLoading } = useSWR(
+    token ? ['/api/admin/posts/', token] : null,
+    fetcher
+  )
 
-    const fetcher = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch('/api/admin/posts/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        });
-        const { posts } = await response.json();
-        setPosts(posts);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error);
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetcher()
-  }, [token]);
-
-  if (loading) return <p>記事を読み込み中です...</p>
-  // if (posts.length === 0) return <p>データがありません。</p>
+  if (isLoading) return <p>記事を読み込み中です...</p>
+  if (error) return <p>エラーが発生しました: {error.message}</p>;
 
   return (
     <>
@@ -58,7 +54,7 @@ export default function AdminPostComponent(){
           </Link>
         </div>
 
-        {posts.length === 0 ? (
+        { !posts || posts.length === 0 ? (
           <p>データがありません。</p>
         ) : (
           posts.map((elem, index) => (

@@ -1,10 +1,33 @@
 'use client';
 
-import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import { PostForm, PostFormInputs } from "../_components/PostForm";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import useSWR from 'swr';
+
+// 1. fetcherをasync-awaitで定義
+const fetcher = async ([url, token]: [string, string]): Promise<PostFormInputs> => {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('データ取得に失敗しました');
+  }
+
+  const data: PostShowResponse = await response.json();
+  const { post } = data;
+  return {
+    title: post.title,
+    content: post.content,
+    thumbnailImageKey: post.thumbnailImageKey,
+    categories: post.postCategories.map((pc) => pc.category),
+  };
+};
 
 
 export default function PostEdit() {
@@ -12,42 +35,10 @@ export default function PostEdit() {
   const { id } = useParams<{ id: string}>();
   const { token } = useSupabaseSession();
 
-  // フォームに渡すための初期データを管理するState
-  const [initialData, setInitialData] = useState<PostFormInputs | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // データを取得する
-  useEffect(() => {
-    if (!token || !id) return
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/admin/posts/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        });
-        const data: PostShowResponse = await response.json();
-        const { post } = data;
-
-        // RHFの PostFormInputs 型に合うように整形してセット
-        setInitialData({
-          title: post.title,
-          content: post.content,
-          thumbnailImageKey: post.thumbnailImageKey,
-          categories: post.postCategories.map((pc) => pc.category),
-        });
-      } catch (error) {
-        console.error("データ取得に失敗しました", error);
-      } finally {
-        setLoading(false);
-      };
-    }
-
-    fetchData();
-  }, [id, token]);
+  const { data: initialData, error, isLoading } = useSWR(
+    token && id ? [`/api/admin/posts/${id}`, token] : null,
+    fetcher
+  );
 
   // 更新処理関数
   const handleUpdate = async (data: PostFormInputs) => {
@@ -107,13 +98,17 @@ export default function PostEdit() {
   }
 
   // データ取得中はローディングを表示し、PostForm のマウントを遅らせる
-  if (loading) {
+  if (isLoading) {
     return <div className="container mx-auto px-4 py-10">読み込み中...</div>
   }
 
   // データが取得できなかった場合のガード
-  if (!initialData) {
+  if (error) {
     return <div className="container mx-auto px-4 py-10">記事が見つかりませんでした。</div>
+  }
+
+  if (!initialData) {
+    return null
   }
 
   return (

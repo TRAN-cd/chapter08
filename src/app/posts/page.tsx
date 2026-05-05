@@ -1,10 +1,21 @@
 'use client';
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse";
 import { PostThumbnail } from "../_components/PostThumbnail";
+import useSWR from 'swr';
+
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('データ取得に失敗しました');
+  }
+
+  const data: PostsIndexResponse = await response.json();
+  return data.posts;
+};
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -17,28 +28,11 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function PostComponent() {
-  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([])
-  const [loading, setLoading] = useState(false);
+  const { data: posts, error, isLoading } = useSWR('/api/posts/', fetcher)
 
-  useEffect(() => {
-    const fetcher = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/posts');
-        const data = await response.json();
-        setPosts(data.posts);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetcher();
-  }, []);
-
-  if (loading) return <p>記事を読み込み中です...</p>;
-  if (posts.length === 0) return <p>データがありません。</p>;
+  if (isLoading) return <p>記事を読み込み中です...</p>;
+  if (error) return <p className="p-4 text-red-500">エラーが発生しました。</p>;
+  if (!posts || posts.length === 0) return <p>データがありません。</p>;
 
   return (
     <>

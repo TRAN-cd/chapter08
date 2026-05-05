@@ -1,11 +1,28 @@
 'use client';
 
-import Image from "next/image";
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from "react";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import { supabase } from '@/app/_libs/supabase';
 import { PostThumbnail } from "@/app/_components/PostThumbnail";
+import useSWR from 'swr';
+
+const postFetcher = async (url: string) => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('データ取得に失敗しました');
+  }
+
+  const data: PostShowResponse = await response.json();
+  return data.post;
+};
+
+const imageFetcher = async (key: string) => {
+  const { data } = supabase.storage
+    .from('post_thumbnail')
+    .getPublicUrl(key);
+  return data.publicUrl;
+};
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -18,49 +35,18 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function Post() {
-  const [post, setPosts] = useState<PostShowResponse["post"] | null>(null);
   const { id } = useParams();
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        const response = await fetch(`/api/posts/${id}`);
-        const data = await response.json();
-        setPosts(data.post);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error);
-      }
-    }
+  const { data: post, error, isLoading } = useSWR(id ? `/api/posts/${id}` : null, postFetcher)
 
-    fetcher();
-  }, [id]);
+  const { data: thumbnailImageUrl } = useSWR(
+    post?.thumbnailImageKey ? post.thumbnailImageKey : null,
+    imageFetcher
+  )
 
-  useEffect(() => {
-    if (!post?.thumbnailImageKey) return
-
-    // アップロード時に取得した、thumbnailImageKeyを用いて画像のURLを取得
-    const fetcher = async () => {
-      const { data } = await supabase.storage
-        .from('post_thumbnail')
-        .getPublicUrl(post.thumbnailImageKey)
-
-      setThumbnailImageUrl(data.publicUrl)
-    }
-
-    fetcher()
-  }, [post?.thumbnailImageKey])
-
-
-  if (!post) {
-    return (
-      <>
-        <div className="p-2.5 w-full text-center">
-          <p>記事を読み込み中です...</p>
-        </div>
-      </>
-    )
-  }
+  if (isLoading) return <p>記事を読み込み中です...</p>;
+  if (error) return <p className="p-4 text-red-500">エラーが発生しました。</p>;
+  if (!post) return <p>データがありません。</p>;
 
   return (
     <>
