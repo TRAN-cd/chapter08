@@ -14,7 +14,7 @@ export type PostFormInputs = {
 
 interface Props {
   mode: 'new' | 'edit'
-  defaultValues?: PostFormInputs
+  defaultValues: PostFormInputs
   onSubmit: (data: PostFormInputs) => void
   onDelete?: () => void
   disabled: boolean;
@@ -40,12 +40,7 @@ export const PostForm = ({
       isSubmitting,
     },
   } = useForm<PostFormInputs>({
-    defaultValues: defaultValues || {
-      title: "",
-      content: "",
-      thumbnailImageKey: "",
-      categories: [],
-    },
+    defaultValues: defaultValues,
     mode: "all",
   });
 

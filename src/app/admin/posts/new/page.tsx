@@ -8,6 +8,12 @@ import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 export default function CreateNewPost() {
   const router = useRouter();
   const { token } = useSupabaseSession();
+  const initialData = {
+    title: "",
+    content: "",
+    thumbnailImageKey: "",
+    categories: [],
+  };
 
   // PostForm 内の handleSubmit(onSubmit) から、バリデーション済みのデータが渡される
   const handleCreate = async (data: PostFormInputs) => {
@@ -52,6 +58,7 @@ export default function CreateNewPost() {
 
         <PostForm
           mode="new"
+          defaultValues={initialData}
           onSubmit={handleCreate}
           disabled={false}
         />
