@@ -4,41 +4,21 @@ import { useRouter, useParams } from "next/navigation";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import { PostForm, PostFormInputs } from "../_components/PostForm";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
-import useSWR from 'swr';
-
-// 1. fetcherをasync-awaitで定義
-const fetcher = async ([url, token]: [string, string]): Promise<PostFormInputs> => {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
-
-  const data: PostShowResponse = await response.json();
-  const { post } = data;
-  return {
-    title: post.title,
-    content: post.content,
-    thumbnailImageKey: post.thumbnailImageKey,
-    categories: post.postCategories.map((pc) => pc.category),
-  };
-};
-
+import { useFetch } from "@/app/_hooks/useFetch";
 
 export default function PostEdit() {
   const router = useRouter();
   const { id } = useParams<{ id: string}>();
   const { token } = useSupabaseSession();
 
-  const { data: initialData, error, isLoading } = useSWR(
-    token && id ? [`/api/admin/posts/${id}`, token] : null,
-    fetcher
-  );
+  const { data, error, isLoading } = useFetch<PostShowResponse>(`/api/admin/posts/${id}`);
+  const initialData = data ? { 
+    title: data.post.title,
+    content: data.post.content,
+    thumbnailImageKey: data.post.thumbnailImageKey,
+    categories: data.post.postCategories.map((pc) => pc.category),
+  } : null;
+  // console.log(initialData);
 
   // 更新処理関数
   const handleUpdate = async (data: PostFormInputs) => {

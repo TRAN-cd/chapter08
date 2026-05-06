@@ -5,17 +5,7 @@ import type { PostShowResponse } from "@/app/_type/PostShowResponse";
 import { supabase } from '@/app/_libs/supabase';
 import { PostThumbnail } from "@/app/_components/PostThumbnail";
 import useSWR from 'swr';
-
-const postFetcher = async (url: string) => {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
-
-  const data: PostShowResponse = await response.json();
-  return data.post;
-};
+import { usePublicFetch } from "@/app/_hooks/usePublicFetch";
 
 const imageFetcher = async (key: string) => {
   const { data } = supabase.storage
@@ -35,9 +25,10 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function Post() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  const { data: post, error, isLoading } = useSWR(id ? `/api/posts/${id}` : null, postFetcher)
+  const { data, error, isLoading } = usePublicFetch<PostShowResponse>(`/api/posts/${id}`);
+  const post = data?.post;
 
   const { data: thumbnailImageUrl } = useSWR(
     post?.thumbnailImageKey ? post.thumbnailImageKey : null,

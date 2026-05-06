@@ -2,34 +2,39 @@
 
 import Link from "next/link";
 import type { CategoriesIndexResponse } from "@/app/_type/CategoriesIndexResponse";
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
-import useSWR from 'swr';
+// import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { useFetch } from "@/app/_hooks/useFetch";
+// import useSWR from 'swr';
 
 // 1. fetcherをasync-awaitで定義
-const fetcher = async ([url, token]: [string, string]) => {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token,
-    },
-  });
+// const fetcher = async ([url, token]: [string, string]) => {
+//   const response = await fetch(url, {
+//     headers: {
+//       'Content-Type': 'application/json',
+//       Authorization: token,
+//     },
+//   });
 
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
+//   if (!response.ok) {
+//     throw new Error('データ取得に失敗しました');
+//   }
 
-  const data: CategoriesIndexResponse = await response.json();
-  return data.categories;
-};
+//   const data: CategoriesIndexResponse = await response.json();
+//   return data.categories;
+// };
 
 export default function AdminCategoriesComponent() {
-  const { token } = useSupabaseSession();
+  // const { token } = useSupabaseSession();
 
   // 2. useSWRの呼び出し
-  const { data: categories, error, isLoading } = useSWR( // dataはcategoriesにリネームしている。
-    token ? ['/api/admin/categories/', token] : null,
-    fetcher
-  );
+  // const { data: categories, error, isLoading } = useSWR( // dataはcategoriesにリネームしている。
+  //   token ? ['/api/admin/categories/', token] : null,
+  //   fetcher
+  // );
+
+  const { data, error, isLoading } = useFetch<CategoriesIndexResponse>('/api/admin/categories/');
+  const categories = data?.categories
+  console.log(categories);
 
   // 3. 状態に応じた表示
   if (isLoading) return <p>カテゴリーを読み込み中です...</p>;

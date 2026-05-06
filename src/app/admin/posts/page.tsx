@@ -2,26 +2,8 @@
 
 import Link from "next/link";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 import { PostThumbnail } from "@/app/_components/PostThumbnail";
-import useSWR from 'swr';
-
-// 1. fetcherをasync-awaitで定義
-const fetcher = async ([url, token]: [string, string]) => {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
-
-  const data: PostsIndexResponse = await response.json();
-  return data.posts;
-};
+import { useFetch } from "@/app/_hooks/useFetch";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -34,12 +16,9 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function AdminPostComponent(){
-  const { token } = useSupabaseSession();
-
-  const { data: posts, error, isLoading } = useSWR(
-    token ? ['/api/admin/posts/', token] : null,
-    fetcher
-  )
+  const { data, error, isLoading } = useFetch<PostsIndexResponse>('/api/admin/posts/');
+  const posts = data?.posts
+  // console.log(posts);
 
   if (isLoading) return <p>記事を読み込み中です...</p>
   if (error) return <p>エラーが発生しました: {error.message}</p>;

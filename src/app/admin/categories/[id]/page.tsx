@@ -1,28 +1,10 @@
 'use client';
 
-// import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { CategoryShowResponse } from "@/app/_type/CategoryShowResponse";
 import { CategoryForm, CategoryFormInputs } from "../_components/CategoryForm";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
-import useSWR from 'swr';
-
-// 1. fetcherをasync-awaitで定義
-const fetcher = async ([url, token]: [string, string]): Promise<CategoryFormInputs> => {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
-
-  const data: CategoryShowResponse = await response.json();
-  return { name: data.category.name };
-};
+import { useFetch } from "@/app/_hooks/useFetch";
 
 
 export default function CategoryEdit() {
@@ -30,48 +12,9 @@ export default function CategoryEdit() {
   const { id } = useParams<{ id: string }>();
   const { token } = useSupabaseSession();
 
-  // 2. useSWRの呼び出し
-  const { data: initialData, error, isLoading } = useSWR(
-    token && id ? [`/api/admin/categories/${id}`, token] : null,
-    fetcher
-  );
-
-
-  // swrとの比較のため、以下コメントアウト残してます。
-  //// ここからswrで書き換える
-
-  // フォームに渡すための初期データを管理するState
-  // const [initialData, setInitialData] = useState<CategoryFormInputs | null>(null);
-  // const [loading, setLoading] = useState(true);
-
-
-  // useEffect(() => {
-  //   if (!token || !id) return
-
-  //   const fetchCategory = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await fetch(`/api/admin/categories/${id}`, {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization: token,
-  //         },
-  //       });
-  //       const data: CategoryShowResponse = await response.json();
-
-  //       console.log("取得したデータ:", data)
-
-  //       setInitialData({ name: data.category.name });
-  //     } catch (error) {
-  //       console.error("データ取得に失敗しました", error);
-  //     } finally {
-  //       setLoading(false);
-  //     };
-  //   }
-
-  //   fetchCategory();
-  // }, [id, token])
-  //// ここまでswrで書き換える
+  const { data, error, isLoading } = useFetch<CategoryShowResponse>(`/api/admin/categories/${id}`);
+  const initialData = data ? { name: data.category.name } : null;
+  // console.log(data);
 
   // 更新処理関数
   const handleUpdate = async (data: CategoryFormInputs) => {

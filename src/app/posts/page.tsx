@@ -1,21 +1,9 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse";
 import { PostThumbnail } from "../_components/PostThumbnail";
-import useSWR from 'swr';
-
-const fetcher = async (url: string) => {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error('データ取得に失敗しました');
-  }
-
-  const data: PostsIndexResponse = await response.json();
-  return data.posts;
-};
+import { usePublicFetch } from "@/app/_hooks/usePublicFetch";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -28,7 +16,9 @@ const formatDate = (dateString: string | Date) => {
 };
 
 export default function PostComponent() {
-  const { data: posts, error, isLoading } = useSWR('/api/posts/', fetcher)
+  const { data, error, isLoading } = usePublicFetch<PostsIndexResponse>('/api/posts/');
+  const posts = data?.posts;
+  console.log(posts);
 
   if (isLoading) return <p>記事を読み込み中です...</p>;
   if (error) return <p className="p-4 text-red-500">エラーが発生しました。</p>;
