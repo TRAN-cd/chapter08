@@ -7,6 +7,7 @@ import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 export default function CreateNewCategory() {
   const router = useRouter();
   const { token } = useSupabaseSession();
+  const initialData = { name: "" };
 
   const handleCreate = async (data: CategoryFormInputs) => {
     if (!token) {
@@ -42,6 +43,7 @@ export default function CreateNewCategory() {
 
       <CategoryForm
         mode="new"
+        defaultValues={initialData}
         onSubmit={handleCreate}
         disabled={false}
       />

@@ -7,7 +7,7 @@ export type CategoryFormInputs = {
 
 interface Props {
   mode: 'new' | 'edit'
-  defaultValues?: CategoryFormInputs
+  defaultValues: CategoryFormInputs
   onSubmit: (data: CategoryFormInputs) => void
   onDelete?: () => void
   disabled: boolean;
@@ -30,7 +30,7 @@ export const CategoryForm = ({
       errors,
     },
   } = useForm<CategoryFormInputs>({
-    defaultValues: defaultValues || {name: "" },
+    defaultValues: defaultValues,
     mode: "all",
   });
 
@@ -62,7 +62,6 @@ export const CategoryForm = ({
         </button>
 
         {mode === 'edit' && (
-
           <button
             type="button"
             onClick={onDelete}
