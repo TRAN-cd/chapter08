@@ -1,13 +1,13 @@
 'use client';
 
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useState } from "react";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse";
+import { PostThumbnail } from "../_components/PostThumbnail";
+import { usePublicFetch } from "@/app/_hooks/usePublicFetch";
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
-  
+
   return new Intl.DateTimeFormat('ja-JP', {
     year: 'numeric',
     month: 'long',
@@ -15,29 +15,14 @@ const formatDate = (dateString: string | Date) => {
   }).format(date);
 };
 
-export default function PostComponent(){
-  const [posts, setPosts] = useState<PostsIndexResponse['posts']>([])  //
-  const [loading, setLoading] = useState(false);
+export default function PostComponent() {
+  const { data, error, isLoading } = usePublicFetch<PostsIndexResponse>('/api/posts/');
+  const posts = data?.posts;
+  console.log(posts);
 
-  useEffect(() => {
-    const fetcher = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/posts');
-        const data = await response.json();
-        setPosts(data.posts);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-  
-    fetcher();
-  }, []);
-  
-  if (loading) return <p>記事を読み込み中です...</p>;
-  if (posts.length === 0) return <p>データがありません。</p>;
+  if (isLoading) return <p>記事を読み込み中です...</p>;
+  if (error) return <p className="p-4 text-red-500">エラーが発生しました。</p>;
+  if (!posts || posts.length === 0) return <p>データがありません。</p>;
 
   return (
     <>
@@ -45,8 +30,8 @@ export default function PostComponent(){
         <h1 className="text-xl font-extrabold tracking-wide">記事一覧</h1>
         {posts.map((elem, index) => (
           <Link href={`/posts/${elem.id}`} className="flex flex-col gap-2.5 pb-2.5 sm:flex-row" key={index}>
-            <div className="max-w-full w-full sm:max-w-[50%]">
-              <Image src={elem.thumbnailUrl} alt="" width={800} height={400} className="w-full align-bottom"/>
+            <div className="max-w-1/3">
+              <PostThumbnail imageKey={elem.thumbnailImageKey} alt={elem.title}/>
             </div>
             <div className="flex flex-col gap-2.5 w-full sm:w-[50%]">
               <div className="flex items-center gap-2.5">

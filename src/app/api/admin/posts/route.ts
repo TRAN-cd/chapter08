@@ -1,8 +1,20 @@
 import { prisma } from "@/app/_libs/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import type { PostsIndexResponse } from "@/app/_type/PostsIndexResponse"
+import { supabase } from "@/app/_libs/supabase";
 
-export const GET = async () => {
+export const GET = async (request: NextRequest) => {
+  // GET関数の引数からrequestを受け取り、その中にAuthorizationヘッダーが含まれているので、それを取り出す
+  const token = request.headers.get('Authorization') ?? ''
+
+  // supabaseに対してtokenを送る
+  const { error } = await supabase.auth.getUser(token)
+
+  // 送ったtokenが正しくない場合、errorが返却されるので、クライアントにもエラーを返す
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 401 })
+
+  // tokenが正しい場合、以降が実行される
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -34,7 +46,7 @@ export type CreatePostRequestBody = {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageKey: string
 }
 
 // 記事作成APIのレスポンスの型
@@ -42,13 +54,18 @@ export type CreatePostResponse = {
   id: number
 }
 
-export const POST = async (request: Request) => {
+export const POST = async (request: NextRequest) => {
+  const token = request.headers.get('Authorization') ?? ''
+  const { error } = await supabase.auth.getUser(token)
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 401 })
+
   try {
     // リクエストのbodyを取得
     const body: CreatePostRequestBody = await request.json()
 
-    // bodyの中からtitle, content, categories, thumbnailUrlを取り出す
-    const { title, content, categories, thumbnailUrl } = body
+    // bodyの中からtitle, content, categories, thumbnailImageKeyを取り出す
+    const { title, content, categories, thumbnailImageKey } = body
 
     // 記事をDBに生成
     // prisma.post.createはSQLの INSERT INTOに相当する
@@ -56,7 +73,7 @@ export const POST = async (request: Request) => {
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageKey,
       },
     })
 
@@ -73,6 +90,7 @@ export const POST = async (request: Request) => {
 
     return NextResponse.json<CreatePostResponse>({ id: data.id })
   } catch (error) {
+    console.error("【APIエラー】:", error);
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
   }

@@ -1,13 +1,22 @@
 'use client';
 
-import Image from "next/image";
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from "react";
 import type { PostShowResponse } from "@/app/_type/PostShowResponse";
+import { supabase } from '@/app/_libs/supabase';
+import { PostThumbnail } from "@/app/_components/PostThumbnail";
+import useSWR from 'swr';
+import { usePublicFetch } from "@/app/_hooks/usePublicFetch";
+
+const imageFetcher = async (key: string) => {
+  const { data } = supabase.storage
+    .from('post_thumbnail')
+    .getPublicUrl(key);
+  return data.publicUrl;
+};
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
-  
+
   return new Intl.DateTimeFormat('ja-JP', {
     year: 'numeric',
     month: 'long',
@@ -15,41 +24,27 @@ const formatDate = (dateString: string | Date) => {
   }).format(date);
 };
 
-export default function Post(){
-  const [post, setPosts] = useState<PostShowResponse["post"] | null>(null);
+export default function Post() {
+  const { id } = useParams<{ id: string }>();
 
-  const { id } = useParams();
+  const { data, error, isLoading } = usePublicFetch<PostShowResponse>(`/api/posts/${id}`);
+  const post = data?.post;
 
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        const response = await fetch(`/api/posts/${id}`);
-        const data = await response.json();
-        setPosts(data.post);
-      } catch (error) {
-        console.error("データ取得に失敗しました", error);
-      }
-    }
-  
-    fetcher();
-  }, [id]);
+  const { data: thumbnailImageUrl } = useSWR(
+    post?.thumbnailImageKey ? post.thumbnailImageKey : null,
+    imageFetcher
+  )
 
-  if (!post) {
-    return (
-      <>
-        <div className="p-2.5 w-full text-center">
-          <p>記事を読み込み中です...</p>
-        </div>
-      </>
-    )
-  }
+  if (isLoading) return <p>記事を読み込み中です...</p>;
+  if (error) return <p className="p-4 text-red-500">エラーが発生しました。</p>;
+  if (!post) return <p>データがありません。</p>;
 
   return (
     <>
       <div className="p-2.5 max-w-[80%] w-full mx-auto">
-        <div className="flex flex-col gap-2.5">
+        <div className="max-w-4/5 m-auto flex flex-col gap-2.5">
           <div className="w-full">
-            <Image src={post.thumbnailUrl} width={800} height={400} alt="w-full align-bottom" />
+            <PostThumbnail imageKey={post.thumbnailImageKey} alt={post.title}/>
           </div>
           <div className="flex flex-col gap-2.5 w-full">
             <div className="flex items-center gap-2.5">

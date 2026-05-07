@@ -1,51 +1,52 @@
 'use client';
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CategoryForm } from "../_components/CategoryForm";
+import { CategoryForm, CategoryFormInputs } from "../_components/CategoryForm";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
-export default function CreateNewCategory(){
+export default function CreateNewCategory() {
   const router = useRouter();
-  const [name, setName] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useSupabaseSession();
+  const initialData = { name: "" };
 
-  const handleCreate = async () => {
-    setIsSubmitting(true);
+  const handleCreate = async (data: CategoryFormInputs) => {
+    if (!token) {
+      alert("認証セッションが見つかりません。")
+      return
+    }
+
     try {
       const response = await fetch(`/api/admin/categories/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token,
         },
-        body: JSON.stringify({name}),
+        body: JSON.stringify({ name: data.name }),
       });
 
       if (response.ok) {
         alert("カテゴリーが作成されました。")
         router.push('/admin/categories')
+        router.refresh()
       } else {
         alert("カテゴリーの作成に失敗しました。")
       }
     } catch (error) {
       console.log('新規作成エラー', error);
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
-  return(
-    <>
-      <div className="container mx-auto px-4">
-        <h1 className="text-xl font-extrabold tracking-wide pb-2">カテゴリー作成</h1>
+  return (
+    <div className="container mx-auto px-4">
+      <h1 className="text-xl font-extrabold tracking-wide pb-2">カテゴリー作成</h1>
 
-        <CategoryForm
-          mode="new"
-          name={name}
-          setName={setName}
-          onSubmit={handleCreate}
-          disabled={isSubmitting}
-        />
-      </div>
-    </>
+      <CategoryForm
+        mode="new"
+        defaultValues={initialData}
+        onSubmit={handleCreate}
+        disabled={false}
+      />
+    </div>
   )
 }
