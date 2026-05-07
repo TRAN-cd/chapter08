@@ -30,7 +30,7 @@ export const CategoryForm = ({
       errors,
     },
   } = useForm<CategoryFormInputs>({
-    defaultValues: defaultValues,
+    defaultValues,
     mode: "all",
   });
 
